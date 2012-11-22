@@ -1,0 +1,37 @@
+{
+	  "name": "Harbor"
+	, "description": "Node.js conversation app"
+	, "version": "0.0.1"
+	, "private": true
+	, "author": "Dustin Larimer <dustinlarimer@gmail.com> (http://github.com/dustinlarimer)"
+	, "engines": {
+		  "node": "0.6.18"
+    	, "npm": "1.1.9"
+	}
+	, "scripts": {
+		  "start": "./node_modules/.bin/nodemon server.js"
+	}
+	, "dependencies": {
+		  "express": "latest"
+		, "express-namespace": "latest"
+		, "jade": "latest"
+		, "mongoose": "latest"
+		, "redis": "0.7.2"
+		, "connect": "latest"
+		, "connect-mongodb": "latest"
+		, "connect-redis": "latest"
+		, "socket.io": "latest"
+		, "passport": "latest"
+		, "passport-local": "latest"
+		, "passport-facebook": "latest"
+		, "passport-twitter": "latest"
+		, "passport-github": "latest"
+		, "passport-google-oauth": "latest"
+		, "bcrypt": "0.7.2"
+		, "underscore": "latest"
+		, "gzippo": "latest"
+		, "async": "latest"
+		, "nodemon": "latest"
+		, "cookie": "0.0.x"
+	}
+}
