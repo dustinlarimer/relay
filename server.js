@@ -7,33 +7,54 @@ var express = require('express')
 
 require('express-namespace')
 
-// Load configurations
+////////////////////////////////////////////////
+// Configurations
+////////////////////////////////////////////////
 var env = process.env.NODE_ENV || 'development'
   , config = require('./config/config')[env]
   , auth = require('./authorization')
 
-// Bootstrap db connection
+
+////////////////////////////////////////////////
+// MongoDB Configuration
+////////////////////////////////////////////////
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema
-mongoose.connect(config.db)
+mongoose.connect(config.db.host)
 
-// Bootstrap models
+
+////////////////////////////////////////////////
+// Models
+////////////////////////////////////////////////
 var models_path = __dirname + '/app/models'
   , model_files = fs.readdirSync(models_path)
 model_files.forEach(function (file) {
   require(models_path+'/'+file)
 })
 
-// bootstrap passport config
+
+////////////////////////////////////////////////
+// Passport Configuration
+////////////////////////////////////////////////
 require('./config/passport').boot(passport, config)
 
+
+////////////////////////////////////////////////
+// Express Configuration -> settings.js
+////////////////////////////////////////////////
 var app = express()                                       // express app
 require('./settings').boot(app, config, passport)         // Bootstrap application settings
 
-// Bootstrap routes
+
+////////////////////////////////////////////////
+// Routes
+////////////////////////////////////////////////
 require('./config/routes')(app, passport, auth)
 
-// Start the app by listening on <port>
+
+////////////////////////////////////////////////
+// Start the App on <port>
+////////////////////////////////////////////////
 var port = process.env.PORT || 3000
 app.listen(port)
 console.log('Express app started on port '+port)

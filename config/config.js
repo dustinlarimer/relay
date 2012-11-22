@@ -1,9 +1,16 @@
 module.exports = {
     development: {
-      db: 'mongodb://localhost/harbor_dev',
+      //db: 'mongodb://localhost/harbor_dev',
+	  host: "127.0.0.1",
 	  port: 3000,
+      db: {
+		  host: "mongodb://localhost/harbor_dev"
+		, safe : true
+	  },
       session: {
-	    "secret" : "5<q%&0Afd7mG4y?9hke6{t@M1)xV'2nbSBL3PR~opJj!zgN8lu"
+	      host: "127.0.0.1"
+		, cache: "harbor2_dev0"
+	    , secret: "5<q%&0Afd7mG4y?9hke6{t@M1)xV'2nbSBL3PR~opJj!zgN8lu"
 	  },
       facebook: {
           clientID: "APP_ID"

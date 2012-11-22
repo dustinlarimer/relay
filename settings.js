@@ -4,19 +4,21 @@
 
 var express = require('express')
   , mongoStore = require('connect-mongodb')
+  , redisStore = require('connect-redis')(express)
+  , sessionStore;
 
 exports.boot = function(app, config, passport){
   bootApplication(app, config, passport)
 }
 
-// App settings and middleware
+////////////////////////////////////////////////
+// App Settings and Middleware
+////////////////////////////////////////////////
 
 function bootApplication(app, config, passport) {
 
   app.set('showStackError', true)
-
   app.use(express.static(__dirname + '/public'))
-
   app.use(express.logger(':method :url :status'))
 
   // set views path, template engine and default layout
@@ -68,6 +70,15 @@ function bootApplication(app, config, passport) {
     app.use(express.bodyParser())
     app.use(express.methodOverride())
 
+	sessionStore = new redisStore({host: config.session.host});
+	app.use(express.session({
+	    // pwgen ftw
+	    secret: config.session.secret,
+	    store: sessionStore,
+	    maxAge: new Date(Date.now() + 30 * 7 * 24 * 3600 * 1000),
+	    key: 'connect.sid'
+	}))
+	/*
     app.use(express.session({
       secret: 'harbor',
       store: new mongoStore({
@@ -75,7 +86,7 @@ function bootApplication(app, config, passport) {
         collection : 'sessions'
       })
     }))
-
+	*/
     app.use(passport.initialize())
     app.use(passport.session())
 
