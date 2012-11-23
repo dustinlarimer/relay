@@ -3,6 +3,8 @@
  *  Generic require login routing middleware
  */
 
+var async = require('async')
+
 exports.requiresLogin = function (req, res, next) {
   if (!req.isAuthenticated()) {
     return res.redirect('/login')
@@ -17,7 +19,7 @@ exports.requiresLogin = function (req, res, next) {
 
 exports.user = {
     hasAuthorization : function (req, res, next) {
-      if (req.profile.id != req.user.id) {
+      if (req.profile.id != req.user._id) {
         return res.redirect('/users/'+req.profile.id)
       }
       next()
@@ -30,10 +32,20 @@ exports.user = {
  */
 
 exports.stream = {
-    hasAuthorization : function (req, res, next) {
-      if (req.stream.members.indexOf(req.user._id) !== -1) {
-        return res.redirect('/streams/'+req.stream.id)
-      }
-      next()
-    }
+	hasAuthorization : function (req, res, next) {
+		var ok = false
+		async.forEach(req.stream.members, function (item, callback){ 
+			if (item._id.toString() === req.user._id.toString()){
+				console.log('Request by a stream member')
+				ok = true
+			}
+		    callback();
+		}, function(err) {
+			if (!ok){
+				return res.redirect('/404/')
+			}
+			console.log("Passed? " + ok);
+			next()
+		});
+	}
 }
