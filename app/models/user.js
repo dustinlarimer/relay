@@ -1,4 +1,4 @@
-// user schema
+// User Schema
 
 var mongoose = require('mongoose')
   , Schema = mongoose.Schema
@@ -10,6 +10,7 @@ var UserSchema = new Schema({
     name: String
   , email: String
   , username: String
+  , date_created: {type : Date, default : Date.now}
   , provider: String
   , hashed_password: String
   , salt: String
