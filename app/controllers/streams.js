@@ -70,7 +70,7 @@ exports.show = function(req, res){
   })
 }
 
-// Delete an article
+// Delete a stream
 exports.destroy = function(req, res){
   var stream = req.stream
   stream.remove(function(err){
@@ -79,13 +79,13 @@ exports.destroy = function(req, res){
   })
 }
 
-// Listing of Articles
+// Index of streams
 exports.index = function(req, res){
   var perPage = 5
     , page = req.param('page') > 0 ? req.param('page') : 0
 
   Stream
-    .find({})
+    .find({ members : req.user })
     .populate('members', 'name')
     .sort({'date_created': -1}) // sort by date
     .limit(perPage)
