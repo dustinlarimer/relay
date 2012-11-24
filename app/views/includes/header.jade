@@ -5,6 +5,9 @@ header#header
       .container
         a.brand(href='/') Harbor
         .nav-collapse.collapse
+          ul.nav
+            li
+              a(href="/streams") Streams
           ul.nav.pull-right
             if (req.isAuthenticated())
               li

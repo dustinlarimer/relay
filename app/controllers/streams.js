@@ -3,7 +3,9 @@ var mongoose = require('mongoose')
   , _ = require('underscore')
   , moment = require('moment')
 
-// New stream
+////////////////////////////////////////////////
+// New
+////////////////////////////////////////////////
 exports.new = function(req, res){
   res.render('streams/new', {
       title: 'New Stream'
@@ -11,7 +13,10 @@ exports.new = function(req, res){
   })
 }
 
-// Create a stream
+
+////////////////////////////////////////////////
+// Create
+////////////////////////////////////////////////
 exports.create = function (req, res) {
   var stream = new Stream(req.body)
   stream.members.push(req.user)
@@ -29,7 +34,10 @@ exports.create = function (req, res) {
   })
 }
 
-// Edit a stream
+
+////////////////////////////////////////////////
+// Edit
+////////////////////////////////////////////////
 exports.edit = function (req, res) {
   res.render('streams/edit', {
     title: 'Edit '+req.stream.title,
@@ -37,7 +45,10 @@ exports.edit = function (req, res) {
   })
 }
 
-// Update a stream
+
+////////////////////////////////////////////////
+// Update
+////////////////////////////////////////////////
 exports.update = function(req, res){
   var stream = req.stream
   stream = _.extend(stream, req.body)
@@ -60,7 +71,10 @@ exports.update = function(req, res){
   })
 }
 
-// View a stream
+
+////////////////////////////////////////////////
+// View
+////////////////////////////////////////////////
 exports.show = function(req, res){
   res.render('streams/show', {
       title: req.stream.title
@@ -71,7 +85,10 @@ exports.show = function(req, res){
   })
 }
 
-// Delete a stream
+
+////////////////////////////////////////////////
+// Delete
+////////////////////////////////////////////////
 exports.destroy = function(req, res){
   var stream = req.stream
   stream.remove(function(err){
@@ -80,7 +97,10 @@ exports.destroy = function(req, res){
   })
 }
 
-// Index of streams
+
+////////////////////////////////////////////////
+// Index
+////////////////////////////////////////////////
 exports.index = function(req, res){
   var perPage = 5
     , page = req.param('page') > 0 ? req.param('page') : 0
@@ -151,3 +171,4 @@ exports.enterRoom = function(req, res, room, users, rooms, status){
   res.render('room');
 };
  */
+

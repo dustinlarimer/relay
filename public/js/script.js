@@ -36,21 +36,24 @@ $(function() {
     $(this).hide().after('<p class="inviting-people">Inviting peple, please wait.</p>').delay(2000).hide().after('something');
   });
 
-  //Socket.io
-  var socket = io.connect();
+  //chatstream.io
+  //var socket = io.connect();
+  var notifications = io.connect('http://localhost/notifications');
+  var chatstream = io.connect('http://localhost/chat');
+  
 
-  socket.on('error', function (reason){
-    console.error('Unable to connect Socket.IO', reason);
+  chatstream.on('error', function (reason){
+    console.error('Unable to connect chatstream.IO', reason);
   });
 
-  socket.on('connect', function (){
+  chatstream.on('connect', function (){
     console.info('successfully established a working connection');
     if($('.chat .chat-box').length == 0) {
-      socket.emit('history request');
+      chatstream.emit('history request');
     }
   });
 
-  socket.on('history response', function(data) {
+  chatstream.on('history response', function(data) {
     if(data.history && data.history.length) {
       var $lastInput
         , lastInputUser;
@@ -82,7 +85,7 @@ $(function() {
     }
   });
 
-  socket.on('new user', function(data) {
+  chatstream.on('new user', function(data) {
     var message = "$username has joined the room.";
 
     //If user is not 'there'
@@ -117,7 +120,7 @@ $(function() {
     }
   });
 
-  socket.on('user-info update', function(data) {
+  chatstream.on('user-info update', function(data) {
     var message = "$username is now $status.";
 
     // Update dropdown
@@ -159,7 +162,7 @@ $(function() {
       }
   });
 
-  socket.on('new msg', function(data) {
+  chatstream.on('new msg', function(data) {
     var time = new Date(),
         $lastInput = $('.chat .current').children().last(),
         lastInputUserKey = $lastInput.data('provider') + ':' + $lastInput.data('user');
@@ -183,7 +186,7 @@ $(function() {
 
   });
 
-  socket.on('user leave', function(data) {
+  chatstream.on('user leave', function(data) {
     var nickname = $('#username').text()
       , message = "$username has left the room.";
     
@@ -232,7 +235,7 @@ $(function() {
         , len = chunks.length;
 
       for(var i = 0; i<len; i++) {
-        socket.emit('my msg', {
+        chatstream.emit('my msg', {
           msg: chunks[i]
         });
       }
@@ -244,7 +247,7 @@ $(function() {
   });
 
   $('.dropdown-status .list a.status').click(function(e) {
-    socket.emit('set status', {
+    chatstream.emit('set status', {
       status: $(this).data('status')
     });
   });
