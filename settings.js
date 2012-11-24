@@ -2,10 +2,15 @@
  * Module dependencies.
  */
 
-var express = require('express')
+var parent = module.parent.exports 
+  , app = parent.app
+  , env = process.env.NODE_ENV || 'development'
+  , config = require('./config/config')[env]
+  , express = require('express')
   , mongoStore = require('connect-mongodb')
   , redisStore = require('connect-redis')(express)
-  , sessionStore;
+  , sessionStore = parent.sessionStore
+  //, sessionStore;
 
 exports.boot = function(app, config, passport){
   bootApplication(app, config, passport)
@@ -28,8 +33,8 @@ function bootApplication(app, config, passport) {
   app.configure(function () {
     // dynamic helpers
     app.use(function (req, res, next) {
-      res.locals.appName = 'Nodejs Express Mongoose Demo'
-      res.locals.title = 'Nodejs Express Mongoose Demo'
+      res.locals.appName = 'Harbor Demo'
+      res.locals.title = 'Harbor Demo'
       res.locals.showStack = app.showStackError
       res.locals.req = req
       res.locals.formatDate = function (date) {
@@ -70,13 +75,13 @@ function bootApplication(app, config, passport) {
     app.use(express.bodyParser())
     app.use(express.methodOverride())
 
-	sessionStore = new redisStore({host: config.session.host});
+	//sessionStore = new redisStore({host: config.session.host});
 	app.use(express.session({
 	    // pwgen ftw
 	    secret: config.session.secret,
-	    store: sessionStore,
+	    store: module.parent.exports.sessionStore,
 	    maxAge: new Date(Date.now() + 30 * 7 * 24 * 3600 * 1000),
-	    key: 'connect.sid'
+	    key: 'harbor'
 	}))
 	/*
     app.use(express.session({

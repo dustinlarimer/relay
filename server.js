@@ -2,8 +2,15 @@
  * Configuration loading and booting of controllers and custom error handlers */
 
 var express = require('express')
+  , http = require('http')
   , fs = require('fs')
   , passport = require('passport')
+  , redis = require('redis')
+  , redisStore = require('connect-redis')(express)
+  , sio = require('socket.io')
+  , parseCookies = require('connect').utils.parseSignedCookies
+  , cookie = require('cookie')
+  //, sessionStore;
 
 require('express-namespace')
 
@@ -13,6 +20,20 @@ require('express-namespace')
 var env = process.env.NODE_ENV || 'development'
   , config = require('./config/config')[env]
   , auth = require('./authorization')
+
+
+////////////////////////////////////////////////
+// Redis Configuration
+////////////////////////////////////////////////
+if (process.env.REDISTOGO_URL) {
+  var rtg   = require('url').parse(process.env.REDISTOGO_URL);
+  var client = exports.client  = redis.createClient(rtg.port, rtg.hostname);
+  client.auth(rtg.auth.split(':')[1]); // auth 1st part is username and 2nd is password separated by ":"
+} else {
+  var client = exports.client  = redis.createClient();
+}
+var sessionStore = exports.sessionStore = new redisStore({client: client, host: config.session.host});
+//sessionStore = new redisStore({host: config.session.host});
 
 
 ////////////////////////////////////////////////
@@ -53,8 +74,15 @@ require('./config/routes')(app, passport, auth)
 
 
 ////////////////////////////////////////////////
-// Start the App on <port>
+// Start the App on <port> along with Socket.io
 ////////////////////////////////////////////////
 var port = process.env.PORT || 3000
-app.listen(port)
-console.log('Express app started on port '+port)
+exports.server = http.createServer(app).listen(port, function() {
+  console.log('Express app started on port ' + port)
+});
+
+////////////////////////////////////////////////
+// Socket.io Global Configuration
+////////////////////////////////////////////////
+require('./sockets');
+

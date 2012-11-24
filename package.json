@@ -27,6 +27,7 @@
 		, "passport-twitter": "latest"
 		, "passport-github": "latest"
 		, "passport-google-oauth": "latest"
+		, "http": "latest"
 		, "bcrypt": "0.7.2"
 		, "underscore": "latest"
 		, "gzippo": "latest"

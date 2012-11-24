@@ -7,26 +7,55 @@ block main
 
 block content
 
-  p
-    span Created on:&nbsp;
-    span= formatDate(stream.date_created, "%b %d, %Y at %I:%M %p")
-  p
-    span Updated #{latest_update}
+  .row
+    .span3
+      p
+        span Created on:&nbsp;
+        span= formatDate(stream.date_created, "%b %d, %Y at %I:%M %p")
+      p
+        span Updated #{latest_update}
+      p
+        form.center.form-inline.confirm(action="/streams/"+stream._id, method="post")
+          a.btn(href='/streams/'+stream._id+'/edit', title="edit") Edit
+          &nbsp;&nbsp;
+          input(type="hidden", name="_method", value="DELETE")
+          button.btn.btn-danger(type="submit") delete
+      p
+        a(href='/streams', title="All Streams") &laquo; All Streams
 
-  if (stream.members)
-    h4 Members
-    ul
-      each member in stream.members
-        li.member
-          a.member(href="/users/"+member._id) #{member.name}
+    .span6
+      .content(role='main')
+        .chat
+            // chat-content
+            .history
+                //historical submits
+            .current
+                //current submits
+        // .chat 
 
-  p
-    br
-    form.center.form-inline.confirm(action="/streams/"+stream._id, method="post")
-      a.btn(href='/streams/'+stream._id+'/edit', title="edit") Edit
-      &nbsp;&nbsp;
-      input(type="hidden", name="_method", value="DELETE")
-      button.btn.btn-danger(type="submit") delete
+        .line-chat
+        .line-chat.second
 
-  p
-    a(href='/streams', title="All Streams") &laquo; All Streams
+        .chat-input
+            input.text(type='text', name='', placeholder="Your Message", value='')
+            // .chat-input
+
+        span#room_name(style="display:none")= stream.name
+        span#username(style="display:none")= user.name
+        span#provider(style="display:none")= user.provider
+
+        include templates/chat_tmpl
+
+    .span3
+      if (stream.members)
+        h4 Members
+        ul
+          each member in stream.members
+            li.member
+              a.member(href="/users/"+member._id) #{member.name}
+
+    script(defer, src="/js/libs/fancy-box/jquery.fancybox.pack.js")
+    script(defer, src="/js/plugins.js")
+    script(defer, src="/js/libs/ICanHaz.min.js")
+    script(src="/socket.io/socket.io.js")
+    script(defer, src="/js/script.js")
