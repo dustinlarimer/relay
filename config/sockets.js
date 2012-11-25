@@ -6,7 +6,7 @@
 var parent = module.parent.exports 
   , app = parent.app
   , env = process.env.NODE_ENV || 'development'
-  , config = require('./config/config')[env]
+  , config = require('./config')[env]
   , server = parent.server
   , express = require('express')
   , client = parent.client

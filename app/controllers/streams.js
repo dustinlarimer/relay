@@ -73,9 +73,10 @@ exports.update = function(req, res){
 
 
 ////////////////////////////////////////////////
-// View
+// Show
 ////////////////////////////////////////////////
 exports.show = function(req, res){
+  //require('../sockets/streams')(req, res)
   res.render('streams/show', {
       title: req.stream.title
     , user: req.user

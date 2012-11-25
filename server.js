@@ -77,12 +77,13 @@ require('./config/routes')(app, passport, auth)
 // Start the App on <port> along with Socket.io
 ////////////////////////////////////////////////
 var port = process.env.PORT || 3000
-exports.server = http.createServer(app).listen(port, function() {
+var server = exports.server = http.createServer(app).listen(port, function() {
   console.log('Express app started on port ' + port)
 });
+
 
 ////////////////////////////////////////////////
 // Socket.io Global Configuration
 ////////////////////////////////////////////////
-require('./sockets');
-
+//var io = exports.io = sio.listen(server);
+require('./config/sockets')//(io);
