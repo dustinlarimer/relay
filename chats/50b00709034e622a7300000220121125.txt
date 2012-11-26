@@ -1,3 +1,0 @@
-{"type":"message","from":"undefined:undefined","atTime":"2012-11-25T19:52:10.773Z","withData":"hay!"}
-{"type":"message","from":"undefined:undefined","atTime":"2012-11-25T19:53:43.191Z","withData":"hello"}
-{"type":"message","from":"undefined:undefined","atTime":"2012-11-25T19:53:47.861Z","withData":"whats up"}
