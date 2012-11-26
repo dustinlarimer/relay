@@ -126,7 +126,6 @@ var chat = io.of('/chat').on('connection', function (socket) {
 
 	socket.on('set status', function(data) {
 		var status = data.status;
-
 		client.set('users:' + userKey + ':status', status, function(err, statusSet) {
 			io.sockets.emit('user-info update', {
 				username: name,
@@ -138,127 +137,26 @@ var chat = io.of('/chat').on('connection', function (socket) {
 
 	socket.on('history request', function() {
 		history = []
-		Post.find({ stream : stream_id })
+		Post
+			.find({ stream : stream_id })
+			.populate('owner', 'name')
 			.exec(function(err, posts) {
 				console.log("Found " + posts.length + " posts")
-				
-				async.forEach(posts, function (post, callback){
-					User
-						.findOne({ _id: post.owner })
-						.exec(function(err, user){
-							console.log("Loading a post for: " + user.name)
-							history.push({
-								  name: user.name
-								, body: post.body
-								, date: post.date_created
-							})
-							if (history.length == posts.length){
-								console.log("Returning " + history.length + " posts")
-								socket.emit('history response', {
-									history: history
-								});
-							}
-						})
+				async.map(posts, function(item, callback){
+					//console.log(item)
+					history.push({
+						  name: item.owner.name
+						, body: item.body
+						, date: item.date_created
+					})
 					callback();
-				});
-				
-			})
-		
-		/*
-		Stream.findOne({_id: stream_id}, function(err, current_stream) {
-		    console.log("--> Connected to: " + current_stream.title);
-			var history = []
-			
-			Post
-				.find({ stream : current_stream._id })
-				//.sort({'date_created': -1})
-				.exec(function(err, posts) {
-					console.log("Found " + posts.length + " posts")
-					
-					async.forEach(posts, function (post, callback){
-						User
-							.findOne({ _id: post.owner })
-							.exec(function(err, user){
-								console.log("Loading a post for: " + user.name)
-								history.push({
-									  name: user.name
-									, body: post.body
-									, date: post.date_created
-								})
-							})
-						callback();
-					}, function(err) {
-						console.log(history.length)
-						console.log(posts.length)
-						if (history.length == posts.length){
-							console.log("History length: " + history.length)
-							socket.emit('history response', {
-								history: history
-							});
-						}
-					});
-					
-					/*
-					console.log(posts)
+				}, function(err, results){
+					//console.log("Returning " + history.length + " posts")
 					socket.emit('history response', {
-						history: posts
+						history: history
 					});
-					
-					/*
-					var total_results = posts.length
-					var total_process = 0
-					posts.forEach( function(post) {
-						User
-							.findOne({ _id: post.owner })
-							.exec(function(err, user){
-								console.log("Loading a post for: " + user.name)
-								history.push({
-									  name: user.name
-									, body: post.body
-									, date: post.date_created
-								})
-								console.log("History length: " + history.length)
-							})
-						total_process = total_process + 1
-						if (total_process == total_results) {
-							console.log("History length: " + history.length)
-							socket.emit('history response', {
-								history: history
-							});
-						}
-					})*
-				})*/
-		
-			
-			/*async.forEach(current_stream.posts, function (post, callback){ 
-				console.log(post.body)
-
-			    callback();
-			}, function(err) {
-				socket.emit('history response', {
-					history: history
 				});
-			});*
-		});*/
-		
-		
-		/*
-		var history = [];
-		var tail = require('child_process').spawn('tail', ['-n', 15, chatlogFileName]);
-		tail.stdout.on('data', function (data) {
-			var lines = data.toString('utf-8').split("\n");
-
-			lines.forEach(function(line, index) {
-				if(line.length) {
-					var historyLine = JSON.parse(line);
-					history.push(historyLine);
-				}
-			});
-
-			socket.emit('history response', {
-				history: history
-			});
-		});*/
+			})
 	});
 
 		socket.on('disconnect', function() {

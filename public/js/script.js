@@ -81,34 +81,8 @@ $(function() {
 				$('.chat').scrollTop($('.chat').prop('scrollHeight'));
 				
 		      });
-
-			/*
-			data.history.forEach(function(historyLine) {
-			var time = new Date(historyLine.atTime)
-			, msnData = historyLine.from.split(':')
-			, nickname = msnData.length > 1 ? msnData[1] : msnData[0]
-			, provider = msnData.length > 1 ? msnData[0] : "twitter"
-			, chatBoxData = {
-			nickname: nickname,
-			provider: provider,
-			msg: historyLine.withData,
-			type: 'history',
-			time: timeParser(time)
-			};
-
-$lastInput = $('.chat .history').children().last();
-lastInputUserKey = $lastInput.data('provider') + ':' + $lastInput.data('user');
-
-if($lastInput.hasClass('chat-box') && lastInputUserKey === chatBoxData.provider + ':' + chatBoxData.nickname) {
-$lastInput.append(parseChatBoxMsg(ich.chat_box_text(chatBoxData)));
-} else {
-$('.chat .history').append(parseChatBox(ich.chat_box(chatBoxData)));
-}
-
-$('.chat').scrollTop($('.chat').prop('scrollHeight'));
-});*/
-}
-});
+		}
+	});
 
 chatstream.on('new user', function(data) {
 	var message = "$username has joined the room.";
