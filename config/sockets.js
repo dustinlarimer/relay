@@ -14,7 +14,7 @@ var parent = module.parent.exports
   , sio = require('socket.io')
   , parseCookies = require('connect').utils.parseSignedCookies
   , cookie = require('cookie')
-  , fs = require('fs')
+  //, fs = require('fs')
   , async = require('async')
 
 var mongoose = require('mongoose')
@@ -59,10 +59,10 @@ var chat = io.of('/chat').on('connection', function (socket) {
 	  , provider = hs.harbor.user.provider
 	  , userKey = name // provider + ":" + name
   	  , stream_id = hs.harbor.stream
-	  , now = new Date()
+	  //, now = new Date()
 	  /* Chat Log handler // (now.getFullYear()) + (now.getMonth() + 1) + (now.getDate()) */
-	  , chatlogFileName = './chats/' + stream_id + ".txt"
-	  , chatlogWriteStream = fs.createWriteStream(chatlogFileName, {'flags': 'a'});
+	  //, chatlogFileName = './chats/' + stream_id + ".txt"
+	  //, chatlogWriteStream = fs.createWriteStream(chatlogFileName, {'flags': 'a'});
 
 	socket.join(stream_id);
 
@@ -72,6 +72,7 @@ var chat = io.of('/chat').on('connection', function (socket) {
 			User.findOne({_id: userKey}, function(err, current_user){
 				client.sadd('streams:' + stream_id + ':online', current_user, function(err, userAdded) {
 					if(userAdded) {
+						console.log(userAdded)
 						client.hincrby('streams:' + stream_id + ':info', 'online', 1);
 						client.get('users:' + current_user + ':status', function(err, status) {
 							io.of('/chat').in(stream_id).emit('new user', {
@@ -90,12 +91,13 @@ var chat = io.of('/chat').on('connection', function (socket) {
 			if(removed) {
 				client.srem('socketio:sockets', socket.id);
 				client.scard('sockets:for:' + userKey + ':at:' + stream_id, function(err, members_no) {
+					//console.log(members_no)
 					if(!members_no) {
 						User.findOne({_id: userKey}, function(err, current_user){
 							console.log(current_user.name + ' is about to leave...')
-							client.srem('streams:' + stream_id + ':online', current_user, function(err, user) {
-								console.log(user)
-								if (!user) {
+							client.srem('streams:' + stream_id + ':online', current_user, function(err, userRemoved) {
+								//console.log(userRemoved)
+								if (userRemoved) {
 									console.log(current_user.name + ' has left the building')
 									client.hincrby('streams:' + stream_id + ':info', 'online', -1);
 									io.of('/chat').in(stream_id).emit('user leave', {
@@ -152,6 +154,7 @@ var chat = io.of('/chat').on('connection', function (socket) {
 	});
 
 	socket.on('set status', function(data) {
+		// Waiting on UI component
 		var status = data.status;
 		client.set('users:' + userKey + ':status', status, function(err, statusSet) {
 			io.of('/chat').in(stream_id).emit('user-info update', {
@@ -179,7 +182,7 @@ var chat = io.of('/chat').on('connection', function (socket) {
 					callback();
 				}, function(err, results){
 					//console.log("Returning " + history.length + " posts")
-					io.of('/chat').in(stream_id).emit('history response', {
+					socket.emit('history response', {
 						history: history
 					});
 				});

@@ -10,6 +10,7 @@ var express = require('express')
   , sio = require('socket.io')
   , parseCookies = require('connect').utils.parseSignedCookies
   , cookie = require('cookie')
+  , init = require('./config/init')
   //, sessionStore;
 
 require('express-namespace')
@@ -33,8 +34,7 @@ if (process.env.REDISTOGO_URL) {
   var client = exports.client  = redis.createClient();
 }
 var sessionStore = exports.sessionStore = new redisStore({client: client, host: config.session.host});
-//sessionStore = new redisStore({host: config.session.host});
-
+init(client);
 
 ////////////////////////////////////////////////
 // MongoDB Configuration
