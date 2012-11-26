@@ -38,7 +38,7 @@ module.exports = function (app, passport, auth) {
   app.get('/streams', streams.index)
   app.get('/streams/new', auth.requiresLogin, streams.new)
   app.post('/streams', auth.requiresLogin, streams.create)
-  app.get('/streams/:streamId', auth.requiresLogin, auth.stream.hasAuthorization, streams.show)
+  app.get('/streams/:streamId', streams.show) //, auth.requiresLogin, auth.stream.hasAuthorization
   app.get('/streams/:streamId/edit', auth.requiresLogin, auth.stream.hasAuthorization, streams.edit)
   app.put('/streams/:streamId', auth.requiresLogin, auth.stream.hasAuthorization, streams.update)
   app.del('/streams/:streamId', auth.requiresLogin, auth.stream.hasAuthorization, streams.destroy)

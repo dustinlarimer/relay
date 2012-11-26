@@ -55,9 +55,9 @@ var notifications = io.of('/notifications').on('connection', function (socket) {
 
 var chat = io.of('/chat').on('connection', function (socket) {
 	var hs = socket.handshake
-	  , name = hs.harbor.user.name
+	  , name = hs.harbor.user
 	  , provider = hs.harbor.user.provider
-	  , userKey = provider + ":" + name
+	  , userKey = name // provider + ":" + name
   	  , stream_id = hs.harbor.stream
 	  , now = new Date()
 	  /* Chat Log handler // (now.getFullYear()) + (now.getMonth() + 1) + (now.getDate()) */
@@ -69,31 +69,55 @@ var chat = io.of('/chat').on('connection', function (socket) {
 	client.sadd('sockets:for:' + userKey + ':at:' + stream_id, socket.id, function(err, socketAdded) {
 		if(socketAdded) {
 			client.sadd('socketio:sockets', socket.id);
-			client.sadd('streams:' + stream_id + ':online', userKey, function(err, userAdded) {
-				if(userAdded) {
-					client.hincrby('streams:' + stream_id + ':info', 'online', 1);
-					client.get('users:' + userKey + ':status', function(err, status) {
-						io.sockets.in(stream_id).emit('new user', {
-							name: name,
-							provider: provider,
-							status: status || 'available'
+			User.findOne({_id: userKey}, function(err, current_user){
+				client.sadd('streams:' + stream_id + ':online', current_user, function(err, userAdded) {
+					if(userAdded) {
+						client.hincrby('streams:' + stream_id + ':info', 'online', 1);
+						client.get('users:' + current_user + ':status', function(err, status) {
+							io.of('/chat').in(stream_id).emit('new user', {
+								name: current_user.name,
+								provider: current_user.provider,
+								status: status || 'available'
+							});
 						});
-					});
-				}
-			});
+					}
+				});
+			})
 		}
+	});
+	socket.on('disconnect', function() {
+		client.srem('sockets:for:' + userKey + ':at:' + stream_id, socket.id, function(err, removed) {
+			if(removed) {
+				client.srem('socketio:sockets', socket.id);
+				client.scard('sockets:for:' + userKey + ':at:' + stream_id, function(err, members_no) {
+					if(!members_no) {
+						User.findOne({_id: userKey}, function(err, current_user){
+							console.log(current_user.name + ' is about to leave...')
+							client.srem('streams:' + stream_id + ':online', current_user, function(err, user) {
+								console.log(user)
+								if (!user) {
+									console.log(current_user.name + ' has left the building')
+									client.hincrby('streams:' + stream_id + ':info', 'online', -1);
+									io.of('/chat').in(stream_id).emit('user leave', {
+										name: current_user.name,
+										provider: current_user.provider
+									});
+								}
+							});
+						})
+					}
+				});
+			}
+		});
 	});
 
 	socket.on('my msg', function(data) {
-
 		var no_empty = data.msg.replace("\n","");
 		if(no_empty.length > 0) {
 			Stream.findOne({_id: stream_id}, function(err, current_stream) {
 			    console.log("--> Connected to: " + current_stream.title);
 				posts = current_stream.posts
-				
 				User.findOne({_id: hs.harbor.user}, function(err, current_user){
-					
 					var my_post = new Post({
 						  stream: current_stream._id
 						, body: data.msg
@@ -102,10 +126,13 @@ var chat = io.of('/chat').on('connection', function (socket) {
 					console.log("Saving new post for " + current_user.name)
 					my_post.save(function(err){
 						if (!err) {
+							var now = new Date();
+							var jsonDate = now.toJSON();
+							current_stream.date_updated = jsonDate
 							current_stream.posts.push(my_post)
 							current_stream.save(function(err){
 								if (!err) {
-									socket.emit('new msg', {
+									io.of('/chat').in(stream_id).emit('new msg', {
 										  name: my_post.owner.name
 										, provider: my_post.owner.provider
 										, msg: my_post.body
@@ -127,7 +154,7 @@ var chat = io.of('/chat').on('connection', function (socket) {
 	socket.on('set status', function(data) {
 		var status = data.status;
 		client.set('users:' + userKey + ':status', status, function(err, statusSet) {
-			io.sockets.emit('user-info update', {
+			io.of('/chat').in(stream_id).emit('user-info update', {
 				username: name,
 				provider: provider,
 				status: status
@@ -152,40 +179,10 @@ var chat = io.of('/chat').on('connection', function (socket) {
 					callback();
 				}, function(err, results){
 					//console.log("Returning " + history.length + " posts")
-					socket.emit('history response', {
+					io.of('/chat').in(stream_id).emit('history response', {
 						history: history
 					});
 				});
 			})
 	});
-
-		socket.on('disconnect', function() {
-			// 'sockets:at:' + stream_id + ':for:' + userKey
-			client.srem('sockets:for:' + userKey + ':at:' + stream_id, socket.id, function(err, removed) {
-				if(removed) {
-					client.srem('socketio:sockets', socket.id);
-					client.scard('sockets:for:' + userKey + ':at:' + stream_id, function(err, members_no) {
-						if(!members_no) {
-							client.srem('streams:' + stream_id + ':online', userKey, function(err, removed) {
-								if (removed) {
-									client.hincrby('streams:' + stream_id + ':info', 'online', -1);
-									
-									/* *** */
-									console.log("**********")
-									console.log("TODO: Replace chatlogWriteStream.destroySoon();")
-									console.log("**********")
-									/* *** */
-									chatlogWriteStream.destroySoon();
-									
-									io.sockets.in(stream_id).emit('user leave', {
-										name: name,
-										provider: provider
-									});
-								}
-							});
-						}
-					});
-				}
-			});
-		});
-	});
+});

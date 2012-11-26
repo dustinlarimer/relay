@@ -85,29 +85,29 @@ $(function() {
 	});
 
 chatstream.on('new user', function(data) {
+	console.log(data.name + " has entered the stream");
 	var message = "$username has joined the room.";
 
 	//If user is not 'there'
-	if(!$('.people a[data-username="' + data.nickname + '"][data-provider="' + data.provider + '"]').length) {
+	if(!$('.people a[data-username="' + data.name + '"][data-provider="' + data.provider + '"]').length) {
 		//Then add it
 		$('.online .people').prepend(ich.people_box(data));
-		USERS[data.provider + ":" + data.nickname] = 1;
+		USERS[data.provider + ":" + data.name] = 1;
 
 		// Chat notice
-		message = message
-		.replace('$username', data.nickname);
+		message = message.replace('$username', data.name);
 
 		// Check update time
 		var time = new Date()
 		, noticeBoxData = {
-			user: data.nickname,
+			user: data.name,
 			noticeMsg: message,
 			time: timeParser(time)
 		};
 
 		var $lastChatInput = $('.chat .current').children().last();
 
-		if($lastChatInput.hasClass('notice') && $lastChatInput.data('user') === data.nickname) {
+		if($lastChatInput.hasClass('notice') && $lastChatInput.data('user') === data.name) {
 			$lastChatInput.replaceWith(ich.chat_notice(noticeBoxData));
 		} else {
 			$('.chat .current').append(ich.chat_notice(noticeBoxData));
@@ -115,7 +115,7 @@ chatstream.on('new user', function(data) {
 		}
 	} else {
 		//Instead, just check him as 'back'
-		USERS[data.provider + ":" + data.nickname] = 1;
+		USERS[data.provider + ":" + data.name] = 1;
 	}
 });
 
@@ -186,11 +186,12 @@ chatstream.on('new msg', function(data) {
 });
 
 chatstream.on('user leave', function(data) {
+	console.log(data.name + " has left the stream");
 	var nickname = $('#username').text()
 	, message = "$username has left the room.";
 
 	for (var userKey in USERS) {
-		if(userKey === data.provider + ":" + data.nickname && data.nickname != nickname) {
+		if(userKey === data.provider + ":" + data.name && data.name != nickname) {
 			//Mark user as leaving
 			USERS[userKey] = 0;
 
@@ -199,23 +200,22 @@ chatstream.on('user leave', function(data) {
 				//If not re-connected
 				if (!USERS[userKey]) {
 					//Remove it and notify
-					$('.people a[data-username="' + data.nickname + '"][data-provider="' + data.provider + '"]').remove();
+					$('.people a[data-username="' + data.name + '"][data-provider="' + data.provider + '"]').remove();
 
 					// Chat notice
-					message = message
-					.replace('$username', data.nickname);
+					message = message.replace('$username', data.name);
 
 					// Check update time
 					var time = new Date(),
 					noticeBoxData = {
-						user: data.nickname,
+						user: data.name,
 						noticeMsg: message,
 						time: timeParser(time)
 					};
 
 					var $lastChatInput = $('.chat .current').children().last();
 
-					if($lastChatInput.hasClass('notice') && $lastChatInput.data('user') === data.nickname) {
+					if($lastChatInput.hasClass('notice') && $lastChatInput.data('user') === data.name) {
 						$lastChatInput.replaceWith(ich.chat_notice(noticeBoxData));
 					} else {
 						$('.chat .current').append(ich.chat_notice(noticeBoxData));
