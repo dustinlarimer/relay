@@ -35,5 +35,6 @@
 		, "nodemon": "latest"
 		, "cookie": "0.0.x"
 		, "moment": "latest"
+		, "less-middleware": "latest"
 	}
 }

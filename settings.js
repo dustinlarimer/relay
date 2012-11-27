@@ -10,6 +10,7 @@ var parent = module.parent.exports
   , mongoStore = require('connect-mongodb')
   , redisStore = require('connect-redis')(express)
   , sessionStore = parent.sessionStore
+  , lessMiddleware = require('less-middleware')
   //, sessionStore;
 
 exports.boot = function(app, config, passport){
@@ -22,51 +23,59 @@ exports.boot = function(app, config, passport){
 
 function bootApplication(app, config, passport) {
 
-  app.set('showStackError', true)
-  app.use(express.static(__dirname + '/public'))
-  app.use(express.logger(':method :url :status'))
+	app.set('showStackError', true)
+	app.use(lessMiddleware({
+		  once: false
+		, debug: true
+		, dest: __dirname + '/public/css'
+		, src: __dirname + '/public/less'
+		, prefix: '/css'
+		, compress: true
+	}))
+	app.use(express.static(__dirname + '/public'))
+	app.use(express.logger(':method :url :status'))
 
-  // set views path, template engine and default layout
-  app.set('views', __dirname + '/app/views')
-  app.set('view engine', 'jade')
-
-  app.configure(function () {
+	// set views path, template engine and default layout
+	app.set('views', __dirname + '/app/views')
+	app.set('view engine', 'jade')
+	
+	app.configure(function () {
     // dynamic helpers
-    app.use(function (req, res, next) {
-      res.locals.appName = 'Harbor Demo'
-      res.locals.title = 'Harbor Demo'
-      res.locals.showStack = app.showStackError
-      res.locals.req = req
-      res.locals.formatDate = function (date) {
-        var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec" ]
-        return monthNames[date.getMonth()]+' '+date.getDate()+', '+date.getFullYear()
-      }
-      res.locals.stripScript = function (str) {
-        return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      }
-      res.locals.createPagination = function (pages, page) {
-        var url = require('url')
-          , qs = require('querystring')
-          , params = qs.parse(url.parse(req.url).query)
-          , str = ''
+	app.use(function (req, res, next) {
+		res.locals.appName = 'Harbor Demo'
+		res.locals.title = 'Harbor Demo'
+		res.locals.showStack = app.showStackError
+		res.locals.req = req
+		res.locals.formatDate = function (date) {
+			var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec" ]
+			return monthNames[date.getMonth()]+' '+date.getDate()+', '+date.getFullYear()
+		}
+		res.locals.stripScript = function (str) {
+			return str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+		}
+		res.locals.createPagination = function (pages, page) {
+			var url = require('url')
+			, qs = require('querystring')
+			, params = qs.parse(url.parse(req.url).query)
+			, str = ''
 
-        params.page = 0
-        var clas = page == 0 ? "active" : "no"
-        str += '<li class="'+clas+'"><a href="?'+qs.stringify(params)+'">First</a></li>'
-        for (var p = 1; p < pages; p++) {
-          params.page = p
-          clas = page == p ? "active" : "no"
-          str += '<li class="'+clas+'"><a href="?'+qs.stringify(params)+'">'+ p +'</a></li>'
-        }
-        params.page = --p
-        clas = page == params.page ? "active" : "no"
-        str += '<li class="'+clas+'"><a href="?'+qs.stringify(params)+'">Last</a></li>'
+			params.page = 0
+			var clas = page == 0 ? "active" : "no"
+			str += '<li class="'+clas+'"><a href="?'+qs.stringify(params)+'">First</a></li>'
+			for (var p = 1; p < pages; p++) {
+				params.page = p
+				clas = page == p ? "active" : "no"
+				str += '<li class="'+clas+'"><a href="?'+qs.stringify(params)+'">'+ p +'</a></li>'
+			}
+			params.page = --p
+			clas = page == params.page ? "active" : "no"
+			str += '<li class="'+clas+'"><a href="?'+qs.stringify(params)+'">Last</a></li>'
 
-        return str
-      }
+			return str
+		}
 
-      next()
-    })
+		next()
+	})
 
     // cookieParser should be above session
     app.use(express.cookieParser())
