@@ -11,7 +11,7 @@ Redis (sessions)
   $ npm start
 ```
 
-**NOTE:** Do not forget to update your facebook twitter and github APP_ID and APP_SECRET in `config/config.js`
+**NOTE:** Local auth works, but additional options can be set in `config/config.js`
 
 Then visit [http://localhost:3000/](http://localhost:3000/)
 
