@@ -1,3 +1,9 @@
+## Prerequisites
+```
+MongoDB
+Redis (sessions)
+```
+
 ## Install
 ```sh
   $ git clone git://github.com/dustinlarimer/harbor.git
@@ -16,7 +22,14 @@ Then visit [http://localhost:3000/](http://localhost:3000/)
   |__models/
   |__views/
 -config/
-  |__routes.js
   |__config.js
+  |__init.js (redis reset)
   |__passport.js (auth config)
+  |__routes.js
+  |__sockets.js (socket.io config)
+-public/
+  |__css (dynamic)
+  |__img
+  |__js
+  |__less (renders to /css)
 ```
