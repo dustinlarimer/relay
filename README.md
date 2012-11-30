@@ -1,4 +1,6 @@
-## Prerequisites
+Persistent chat app based on Balloons.io(Balloons.io)
+
+## Required
 ```
 MongoDB
 Redis (sessions)
