@@ -70,7 +70,7 @@ exports.index = function(req, res){
       if (err) return res.render('500')
       User.count().exec(function (err, count) {
         res.render('users/index', {
-            title: 'List of Articles'
+            title: 'Users'
           , users: users
           , page: page
           , pages: count / perPage

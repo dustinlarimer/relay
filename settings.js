@@ -42,8 +42,8 @@ function bootApplication(app, config, passport) {
 	app.configure(function () {
     // dynamic helpers
 	app.use(function (req, res, next) {
-		res.locals.appName = 'Harbor Demo'
-		res.locals.title = 'Harbor Demo'
+		res.locals.appName = 'Relay'
+		res.locals.title = 'Relay'
 		res.locals.showStack = app.showStackError
 		res.locals.req = req
 		res.locals.formatDate = function (date) {

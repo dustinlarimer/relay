@@ -116,7 +116,7 @@ exports.index = function(req, res){
       if (err) return res.render('500')
       Stream.count().exec(function (err, count) {
         res.render('streams/index', {
-            title: 'List of Streams'
+            title: 'Streams'
           , streams: streams
           , page: page
           , pages: count / perPage
