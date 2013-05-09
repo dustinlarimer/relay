@@ -1,4 +1,4 @@
-Persistent chat app based on [http://balloons.io/](Balloons.io)
+Beginnings of a persistent chat app based on [http://balloons.io/](Balloons.io)
 
 ## Required
 ```
