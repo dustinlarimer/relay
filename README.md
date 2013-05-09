@@ -8,7 +8,7 @@ Redis (sessions)
 
 ## Install
 ```sh
-  $ git clone git://github.com/dustinlarimer/harbor.git
+  $ git clone git://github.com/dustinlarimer/relay.git
   $ npm install
   $ npm start
 ```
